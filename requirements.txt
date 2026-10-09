@@ -1,0 +1,6 @@
+numpy>=1.25
+scipy>=1.11
+mpi4py>=3.1      # needs an MPI library (Open MPI, MPICH or Intel MPI)
+matplotlib>=3.7  # benchmark plots only
+pandas>=2.0      # benchmark plots only
+pytest>=7        # tests run without MPI

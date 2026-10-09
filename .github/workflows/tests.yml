@@ -1,0 +1,29 @@
+name: tests
+
+on: [push, pull_request]
+
+jobs:
+  unit-tests:
+    # Algorithms run on thread-based ranks: no MPI installation needed.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install numpy scipy pytest
+      - run: pytest -q
+
+  mpi-smoke-test:
+    # Same code under a real MPI runtime.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev
+      - run: pip install numpy scipy mpi4py
+      - run: mpirun -np 4 --oversubscribe python scripts/matprod.py --size 512 --p2p --bcast --min
+      - run: mpirun -np 4 --oversubscribe python scripts/cg_solve.py --rows-per-process 5000 --mode allgather
+      - run: mpirun -np 4 --oversubscribe python scripts/cg_solve.py --rows-per-process 5000 --mode halo
